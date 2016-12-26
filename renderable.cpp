@@ -15,3 +15,7 @@ void TestRenderable::render(){
         glVertex2f(x + 0.0f, y + 64.0f);
     glEnd();
 }
+
+void TestRenderable::update(){
+    
+}

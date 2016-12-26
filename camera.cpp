@@ -1,3 +1,4 @@
+#include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 #include "camera.h"
@@ -8,8 +9,17 @@ Camera::Camera(int width, int height){
     this->width = width;
     this->height = height;
     sf::Window *window = new sf::Window(sf::VideoMode(width, height), "OpenGL", sf::Style::Default, sf::ContextSettings(32));
-    glOrtho(0, 1024, 0, 1024, 0.0f, 1.0f);
+    windowResized(width, height);
     screen = window;
+}
+
+void Camera::windowResized(int width, int height){
+    std::cout << "Camera::windowResized: " << width << ", " << height << std::endl;
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    glViewport(0, 0, width, height);
+    glOrtho(0, width, 0, height, 0.0f, 1.0f);
 }
 
 void Camera::render(Renderable& r){
@@ -21,13 +31,14 @@ bool Camera::handleEvents(){
     sf::Event event;
     while (screen->pollEvent(event)){
         if (event.type == sf::Event::Closed) return false;
-        else if(event.type == sf::Event::Resized) glViewport(0, 0, event.size.width, event.size.height);
+        else if(event.type == sf::Event::Resized) windowResized(event.size.width, event.size.height);
     }
     return true;
 }
 
 void Camera::preRender(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
 }
 
 void Camera::postRender(){

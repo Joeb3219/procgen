@@ -17,6 +17,7 @@ public:
     bool handleEvents();
     void preRender();
     void postRender();
+    void windowResized(int width, int height);
     ~Camera();
 
 };
