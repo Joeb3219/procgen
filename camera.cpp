@@ -22,7 +22,7 @@ void Camera::windowResized(int width, int height){
     glOrtho(0, width, 0, height, 0.0f, 1.0f);
 }
 
-void Camera::render(Renderable& r){
+void Camera::render(FPS_Graphics::Renderable& r){
     r.render();
 }
 

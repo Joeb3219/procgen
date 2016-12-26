@@ -1,17 +1,27 @@
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
+#include <sys/time.h>
+#include "main.h"
 #include "camera.h"
 #include "renderable.h"
 #include "mob.h"
 
+long int getCurrentTime(){
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    long int currentTime = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+}
+
 int main(){
     Camera *camera = new Camera(800, 600);
-    //camera->screen->setVerticalSyncEnabled(true);
+
+    double msPerTick = 1000.0 / Settings::tickRate;
+    long int currentTime = getCurrentTime();
 
     bool running = true;
-    TestRenderable renderable(0, 900);
-    TestRenderable renderable2(100, 300);
+    FPS_Graphics::TestRenderable renderable(0, 900);
+    FPS_Graphics::TestRenderable renderable2(100, 300);
     Player player(20, 20, 20);
     while (running){
         running = camera->handleEvents();
@@ -20,7 +30,10 @@ int main(){
         camera->render(renderable2);
         camera->render(player);
         camera->postRender();
-        player.update();
+        while((currentTime + msPerTick) < getCurrentTime()){
+            player.update();
+            currentTime += msPerTick;
+        }
     }
 
     return 0;

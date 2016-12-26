@@ -3,7 +3,7 @@
 
 #include "renderable.h"
 
-class Mob : public Renderable{
+class Mob : public FPS_Graphics::Renderable{
 public:
     float x, y, z;
     virtual void render() = 0;

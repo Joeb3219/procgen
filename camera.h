@@ -13,7 +13,7 @@ public:
     int width, height;
 
     Camera(int width, int height);
-    void render(Renderable& r);
+    void render(FPS_Graphics::Renderable& r);
     bool handleEvents();
     void preRender();
     void postRender();
