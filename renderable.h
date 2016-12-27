@@ -16,6 +16,21 @@ namespace FPS_Graphics{
         void update();
         float x, y;
     };
+
+    class Bitmap{
+
+    };
+
+    class Tile : public Renderable{
+    private:
+        GLuint texture;
+        float width, height;
+    public:
+        float x, y;
+        Tile(float x, float y, float width, float height, GLuint texture);
+        void render();
+        void update();
+    };
 }
 
 #endif

@@ -13,7 +13,15 @@ Camera::Camera(int width, int height){
     screen = window;
 }
 
+sf::Vector2i Camera::getRelativeMousePosition(){
+    sf::Vector2i vec = sf::Mouse::getPosition(*screen);
+    vec.y = height - vec.y;
+    return vec;
+}
+
 void Camera::windowResized(int width, int height){
+    this->width = width;
+    this->height = height;
     std::cout << "Camera::windowResized: " << width << ", " << height << std::endl;
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -39,6 +47,7 @@ bool Camera::handleEvents(){
 void Camera::preRender(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Camera::postRender(){

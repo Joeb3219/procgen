@@ -18,6 +18,7 @@ public:
     void preRender();
     void postRender();
     void windowResized(int width, int height);
+    sf::Vector2i getRelativeMousePosition();
     ~Camera();
 
 };

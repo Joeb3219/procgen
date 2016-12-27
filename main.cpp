@@ -5,6 +5,7 @@
 #include "main.h"
 #include "camera.h"
 #include "renderable.h"
+#include "fileIO.h"
 #include "mob.h"
 
 long int getCurrentTime(){
@@ -23,15 +24,19 @@ int main(){
     FPS_Graphics::TestRenderable renderable(0, 900);
     FPS_Graphics::TestRenderable renderable2(100, 300);
     Player player(20, 20, 20);
+    GLuint texture = FPS_FileIO::loadBitmapTexture("res/tiles/test.bmp");
+    FPS_Graphics::Tile tile(200, 400, 32, 32, texture);
     while (running){
         running = camera->handleEvents();
         camera->preRender();
         camera->render(renderable);
         camera->render(renderable2);
         camera->render(player);
+        camera->render(tile);
         camera->postRender();
         while((currentTime + msPerTick) < getCurrentTime()){
             player.update();
+            sf::Vector2i mousePos = camera->getRelativeMousePosition();
             currentTime += msPerTick;
         }
     }
