@@ -7,8 +7,8 @@
 
 #define PI 3.14159265
 #define NEARCLIP 0.001
-#define FARCLIP 2000.0
-#define FOV 65
+#define FARCLIP 200.0
+#define FOV 70
 
 
 sf::Vector3f normalizeVector(sf::Vector3f vector){
@@ -45,16 +45,16 @@ void Camera::update(){
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::P)) mouseGrabbed = !mouseGrabbed;
     float rYRadians = (PI / 180.0) * rY;
-    float rXRadians = (PI / 180.0) * (rX);
+    float rXRadians = (PI / 180.0) * (rX + 90);
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
 
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) x+= 0.01 * cos(rYRadians);
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) z-= 0.01;
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
-        x -= (float) sin(rXRadians) * 0.01;
-        y -= (float) sin(rXRadians) * 0.01;
-        z -= (float) cos(rXRadians) * 0.01;
+        x += (float) cos(rXRadians) * 0.01;// * fabs(cos(rYRadians));
+        //y -= (float) sin(rXRadians) * 0.01;
+        z += (float) sin(rXRadians) * 0.01;// * fabs(cos(rYRadians));
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::U)) y+= 0.01;
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::J)) y-= 0.01;
@@ -121,9 +121,9 @@ void Camera::preRender(){
     glDepthRange(0,1);
 
     float cosRY = cos(rY * (PI / 180.0));
-    sf::Vector3f at(x + sin(rX * (PI/180.0)) * FARCLIP, y - sin(rY*(PI/180.0)) * FARCLIP, z - cos(rX * (PI/180.0)) * FARCLIP);
-    sf::Vector3f eye(x, y + 1, z);
-    sf::Vector3f up(0, y + FARCLIP * cos((rX) * (PI / 180.0)), 0);
+    sf::Vector3f at(x + sin(rX * (PI/180.0)) * FARCLIP * cosRY, y - sin(rY*(PI/180.0)) * FARCLIP, z - cos(rX * (PI/180.0)) * FARCLIP * cosRY);
+    sf::Vector3f eye(x, y, z);
+    sf::Vector3f up(0, 1, 0);
     sf::Vector3f zAxis = at - eye;
     zAxis = normalizeVector(zAxis);
     sf::Vector3f xAxis = crossVector(up, zAxis);
@@ -136,11 +136,11 @@ void Camera::preRender(){
         xAxis.z, yAxis.z, -zAxis.z, 0,
         0, 0, 0, 1};
 
-    glMultMatrixf(matrix);
     /*glRotatef(rY, 1, 0, 0);
     glRotatef(rX, 0, 1, 0);
     glRotatef(0, 0, 0, 1);*/
     glTranslatef(x, y, z);
+    glMultMatrixf(matrix);
 }
 
 void Camera::postRender(){

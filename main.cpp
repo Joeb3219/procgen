@@ -24,16 +24,16 @@ int main(){
     Person person(20, 20, 20, FPS_FileIO::loadBitmapTexture("res/tiles/sheet.bmp"));
     GLuint texture = FPS_FileIO::loadBitmapTexture("res/tiles/test.bmp");
     FPS_Graphics::Tile tile(200, 400, 32, 32, texture);
-    FPS_Graphics::Cube cubes [12];
-    for(int i = 0; i < 12; i ++){
-        cubes[i] = FPS_Graphics::Cube(i, 0, 1);
+    FPS_Graphics::Cube cubes [2];
+    for(int i = 0; i < 2; i ++){
+        cubes[i] = FPS_Graphics::Cube(i, 0, 0);
     }
     while (running){
         running = camera->handleEvents();
         camera->preRender();
         camera->render(tile);
         camera->render(person);
-        for(int i = 0; i < 12; i ++) camera->render(cubes[i]);
+        for(int i = 0; i < 2; i ++) camera->render(cubes[i]);
         camera->postRender();
         while((currentTime + msPerTick) < getCurrentTime()){
             camera->update();
