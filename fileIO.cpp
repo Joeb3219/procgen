@@ -2,6 +2,7 @@
 #include <SFML/OpenGL.hpp>
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include "fileIO.h"
 
 /**

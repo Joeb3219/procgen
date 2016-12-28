@@ -31,6 +31,15 @@ namespace FPS_Graphics{
         void render();
         void update();
     };
+
+    class Cube : public Renderable{
+    public:
+        Cube();
+        Cube(float x, float y, float z);
+        void render();
+        void update();
+        float x, y, z;
+    };
 }
 
 #endif

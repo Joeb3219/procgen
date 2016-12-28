@@ -7,9 +7,11 @@ class Camera{
 
 private:
     sf::Window *screen;
+    float x, y, z;
+    float rX, rY;
+    bool mouseGrabbed;
 
 public:
-    float x, y;
     int width, height;
 
     Camera(int width, int height);
@@ -18,6 +20,7 @@ public:
     void preRender();
     void postRender();
     void windowResized(int width, int height);
+    void update();
     sf::Vector2i getRelativeMousePosition();
     ~Camera();
 

@@ -4,25 +4,28 @@
 #include "mob.h"
 
 
-Player::Player(float x, float y, float z){
+Person::Person(float x, float y, float z, GLuint texture){
+    this->texture = texture;
+    this->width = 32;
+    this->height = 64;
     this->x = x;
     this->y = y;
     this->z = z;
 }
 
-void Player::render(){
+void Person::render(){
+    glEnable(GL_TEXTURE_2D);
+    glColor3f( 1.0f, 1.0f, 1.0f);
+    glBindTexture(GL_TEXTURE_2D, texture);
     glBegin(GL_POLYGON);
-        glColor3f( 0.4f, 0.1f, 0.54f);
-        glVertex2f(x + 0.0f, y + 0.0f);
-        glVertex2f(x + 32.0f, y + 0.0f);
-        glVertex2f(x + 32.0f, y + 64.0f);
-        glVertex2f(x + 0.0f, y + 64.0f);
+        glTexCoord2f(0, 0); glVertex2f(x, y);
+        glTexCoord2f(1, 0); glVertex2f(x + width, y);
+        glTexCoord2f(1, 1); glVertex2f(x + width, y + height);
+        glTexCoord2f(0, 1); glVertex2f(x, y + height);
     glEnd();
+    glDisable(GL_TEXTURE_2D);
 }
 
-void Player::update(){
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) x--;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) x++;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) y--;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) y++;
+void Person::update(){
+    
 }

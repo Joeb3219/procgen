@@ -1,5 +1,5 @@
 CC := g++
-LIBS := -lsfml-graphics -lsfml-window -lsfml-system -lGL
+LIBS := -lsfml-graphics -lsfml-window -lsfml-system -lGL -lm
 
 all: clean fps
 

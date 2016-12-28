@@ -21,22 +21,23 @@ int main(){
     long int currentTime = getCurrentTime();
 
     bool running = true;
-    FPS_Graphics::TestRenderable renderable(0, 900);
-    FPS_Graphics::TestRenderable renderable2(100, 300);
-    Player player(20, 20, 20);
+    Person person(20, 20, 20, FPS_FileIO::loadBitmapTexture("res/tiles/sheet.bmp"));
     GLuint texture = FPS_FileIO::loadBitmapTexture("res/tiles/test.bmp");
     FPS_Graphics::Tile tile(200, 400, 32, 32, texture);
+    FPS_Graphics::Cube cubes [12];
+    for(int i = 0; i < 12; i ++){
+        cubes[i] = FPS_Graphics::Cube(i, 0, 1);
+    }
     while (running){
         running = camera->handleEvents();
         camera->preRender();
-        camera->render(renderable);
-        camera->render(renderable2);
-        camera->render(player);
         camera->render(tile);
+        camera->render(person);
+        for(int i = 0; i < 12; i ++) camera->render(cubes[i]);
         camera->postRender();
         while((currentTime + msPerTick) < getCurrentTime()){
-            player.update();
-            sf::Vector2i mousePos = camera->getRelativeMousePosition();
+            camera->update();
+            person.update();
             currentTime += msPerTick;
         }
     }
