@@ -8,8 +8,9 @@ class Camera{
 private:
     sf::Window *screen;
     float x, y, z;
-    float rX, rY;
+    float rX, rY, rZ;
     bool mouseGrabbed;
+    void gluPerspective(float fov, float aspectRatio, float near, float far);
 
 public:
     int width, height;
