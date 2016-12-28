@@ -2,6 +2,7 @@
 #define CAMERA_H_
 
 #include "renderable.h"
+#define DEBUG 0
 
 class Camera{
 

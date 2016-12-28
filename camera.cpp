@@ -40,7 +40,7 @@ void Camera::update(){
     if(mouseGrabbed){
         rX += (mouseChange.x * 0.08);
         rY -= (mouseChange.y * 0.08);
-        std::cout << "CAMERA: (x, y, z, rX, rY): (" << x << ", " << y << ", " << z << ", " << rX << ", " << rY << std::endl;
+        if(DEBUG == 1) std::cout << "CAMERA: (x, y, z, rX, rY): (" << x << ", " << y << ", " << z << ", " << rX << ", " << rY << std::endl;
         sf::Mouse::setPosition(sf::Vector2i(width / 2, height / 2), *screen);
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::P)) mouseGrabbed = !mouseGrabbed;
@@ -83,8 +83,9 @@ sf::Vector2i Camera::getRelativeMousePosition(){
 void Camera::windowResized(int width, int height){
     this->width = width;
     this->height = height;
-    std::cout << "Camera::windowResized: " << width << ", " << height << std::endl;
+    if(DEBUG == 1) std::cout << "Camera::windowResized: " << width << ", " << height << std::endl;
 
+    glViewport(0, 0, width, height);
     glOrtho(0, width, 0, height, NEARCLIP, FARCLIP);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
