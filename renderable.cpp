@@ -2,24 +2,6 @@
 #include "renderable.h"
 
 namespace FPS_Graphics{
-    TestRenderable::TestRenderable(float x, float y){
-        this->x = x;
-        this->y = y;
-    }
-
-    void TestRenderable::render(){
-        glBegin(GL_POLYGON);
-            glColor3f( 0.2f, 0.3f, 0.12f);
-            glVertex2f(x + 0.0f, y + 0.0f);
-            glVertex2f(x + 64.0f, y + 0.0f);
-            glVertex2f(x + 64.0f, y + 64.0f);
-            glVertex2f(x + 0.0f, y + 64.0f);
-        glEnd();
-    }
-
-    void TestRenderable::update(){
-
-    }
 
     Tile::Tile(float x, float y, float width, float height, GLuint texture){
         this->x = x;
@@ -43,6 +25,29 @@ namespace FPS_Graphics{
     }
 
     void Tile::update(){
+
+    }
+
+    Ground_Layer::Ground_Layer(float width){
+        this->width = width;
+    }
+
+    void Ground_Layer::render(){
+        glPushMatrix();
+        glLoadIdentity();
+        glTranslatef(-width/2.0, 0, -width/2.0);
+        glRotatef(90, 1, 0, 0);
+        glColor3f(0xC2 / 255.0f, 0xB2 / 255.0f, 0x80 / 255.0f); // #c2b280
+        glBegin(GL_QUADS);
+            glVertex2f(0, 0);
+            glVertex2f(width / 2.0, 0);
+            glVertex2f(width / 2.0, width / 2.0);
+            glVertex2f(0, width / 2.0);
+        glEnd();
+        glPopMatrix();
+    }
+
+    void Ground_Layer::update(){
 
     }
 

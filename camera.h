@@ -10,7 +10,7 @@ private:
     sf::Window *screen;
     float x, y, z;
     float rX, rY, rZ;
-    bool mouseGrabbed;
+    bool mouseGrabbed, focused;
     void gluPerspective(float fov, float aspectRatio, float near, float far);
 
 public:

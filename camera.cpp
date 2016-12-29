@@ -31,11 +31,12 @@ Camera::Camera(int width, int height){
     sf::Window *window = new sf::Window(sf::VideoMode(width, height), "OpenGL", sf::Style::Default, sf::ContextSettings(32));
     windowResized(width, height);
     screen = window;
-    mouseGrabbed = true;
+    mouseGrabbed = focused = true;
     sf::Mouse::setPosition(sf::Vector2i(width / 2, height / 2), *screen);
 }
 
 void Camera::update(){
+    if(!focused) return;
     sf::Vector2i mouseChange = getRelativeMousePosition();
     if(mouseGrabbed){
         rX += (mouseChange.x * 0.08);
@@ -117,7 +118,10 @@ bool Camera::handleEvents(){
     while (screen->pollEvent(event)){
         if (event.type == sf::Event::Closed) return false;
         else if(event.type == sf::Event::Resized) windowResized(event.size.width, event.size.height);
+        else if (event.type == sf::Event::LostFocus) focused = false;
+        else if (event.type == sf::Event::GainedFocus) focused = true;
     }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) return false;
     return true;
 }
 

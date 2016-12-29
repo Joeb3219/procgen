@@ -9,14 +9,6 @@ namespace FPS_Graphics{
         float x, y;
     };
 
-    class TestRenderable : public Renderable{
-    public:
-        TestRenderable(float x, float y);
-        void render();
-        void update();
-        float x, y;
-    };
-
     class Bitmap{
 
     };
@@ -39,6 +31,15 @@ namespace FPS_Graphics{
         void render();
         void update();
         float x, y, z;
+    };
+
+    class Ground_Layer : public Renderable{
+    public:
+        Ground_Layer(float width);
+        void render();
+        void update();
+        float width;
+
     };
 }
 
