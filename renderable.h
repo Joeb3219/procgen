@@ -39,7 +39,13 @@ namespace FPS_Graphics{
 
     class Ground : public Renderable{
     private:
-        GLuint VBO_VEX_ID, VBO_NORM_ID;
+        double terrainHeights[256 * 256];
+        double terrainNormals[256 * 256 * 3];
+        double terrainColors[256 * 256 * 3];
+        GLuint DL_ID;
+        GLuint generateDL();
+        void computeNormals();
+        sf::Vector3f terrainCrossProduct(int x1,int z1,int x2,int z2,int x3,int z3);
     public:
         Ground();
         void render();

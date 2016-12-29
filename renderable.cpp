@@ -4,9 +4,9 @@
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
+#include "lib/fastNoise/FastNoise.h"
 #include "renderable.h"
 #include "math.h"
-#include "noise.h"
 
 namespace FPS_Graphics{
 
@@ -35,95 +35,180 @@ namespace FPS_Graphics{
 
     }
 
+    GLuint Ground::generateDL(){
+        GLuint terrainDL;
+    	float startW,startL;
+    	int i,j,aux;
+        double yOffset = 0, xOffset = 0, zOffset = 0;
+
+    	startW = 0;
+    	startL = 0;
+
+    	terrainDL = glGenLists(1);
+
+    	glNewList(terrainDL,GL_COMPILE);
+
+		glColorMaterial(GL_FRONT, GL_DIFFUSE);
+		glEnable(GL_COLOR_MATERIAL);
+
+    	// generate n-1 strips, where n = 256
+    	// for each vertex test if colors and normals are enabled
+    	for (i = 0 ; i < 256-1; i++) {
+    		glBegin(GL_TRIANGLE_STRIP);
+    		for (j = 0;j < 256; j++) {
+    			aux = 3*((i+1)*256 + j);
+    			glColor3f(terrainColors[aux], terrainColors[aux+1], terrainColors[aux+2]);
+    			glNormal3f(terrainNormals[aux], terrainNormals[aux+1], terrainNormals[aux+2]);
+    			glVertex3f(startW + j + xOffset, terrainHeights[(i+1) * 256 + (j)] + yOffset, startL - (i+1) + zOffset);
+    			aux = 3 * (i * 256 + j);
+    			glColor3f(terrainColors[aux], terrainColors[aux+1], terrainColors[aux+2]);
+    			glNormal3f(terrainNormals[aux], terrainNormals[aux+1], terrainNormals[aux+2]);
+    			glVertex3f(startW + j + xOffset, terrainHeights[(i) * 256 + j] + yOffset, startL - i + zOffset);
+    		}
+    		glEnd();
+    	}
+    	glEndList();
+
+    	// return the list index so that the application can use it
+    	return terrainDL;
+    }
+
     Ground::Ground(){
-        sf::Vector3f normals [2][256][256];
-        sf::Vector3f finalNormals[256 * 256 + 3];
-        sf::Vector3f vertices[256 * 256 + 3];
-        FPS_Noise::PerlinOctave perlin(8, 12312312);
+        int goalTerrainMax = 40, goalTerrainMin = 2;
+
+        FastNoise myNoise; // Create a FastNoise object
+        myNoise.SetNoiseType(FastNoise::SimplexFractal); // Set the desired noise type
+        myNoise.SetFractalOctaves(8);
+
         double a, b;
         for(a = 0; a < 256; a ++){
             for(b = 0; b < 256; b ++){
-                vertices[(int) (a*256 + b)] = sf::Vector3f(a, b, perlin.noise(a, b) * 12);
-            }
-        }
-        for(int x = 0; x < 256; x ++){
-            for(int z = 0; z < 256; z ++){
-                int ind = x*256 + z;
-                sf::Vector3f triangle0[] = {vertices[ind], vertices[ind + 256], vertices[ind + 256 + 1]};
-                sf::Vector3f triangle1[] = {vertices[ind + 256 + 1], vertices[ind + 1], vertices[ind]};
-                sf::Vector3f tNorm0 = FPS_Math::crossVector(triangle0[0]-triangle0[1], triangle0[1]-triangle0[2]);
-                sf::Vector3f tNorm1 = FPS_Math::crossVector(triangle1[0]-triangle1[1], triangle1[1]-triangle1[2]);
-                normals[0][x][z] = tNorm0;
-                normals[1][x][z] = tNorm1;
-            }
-        }
-        for(int x = 0; x < 256; x ++){
-            for(int z = 0; z < 256; z ++){
-                sf::Vector3f finalNorm(0, 0, 0);
-                if(x != 0 && z != 0) finalNorm += normals[0][x-1][z-1] + normals[1][x-1][z-1];
-                if(x != 0 && z != 255) finalNorm += normals[0][x - 1][z];
-                if(x != 255 && z != 255) finalNorm += normals[0][x][z] + normals[1][x][z];
-                if(x != 255 && z != 0) finalNorm += normals[1][x][z - 1];
-                finalNormals[x * 256 + z] = FPS_Math::normalizeVector(finalNorm);
+                int ind = (int) (a*256 + b), color = 0xFFFFFF;
+                double noise = myNoise.GetNoise(a,b);
+                terrainHeights[ind] = noise * 20;
+
+                color *= noise;
+
+                terrainColors[ind + 0] = ((color & 0xFF0000) >> 16) / 255.f;
+                terrainColors[ind + 1] = ((color & 0x00FF00) >> 8) / 255.f;
+                terrainColors[ind + 2] = ((color & 0x0000FF) >> 0) / 255.f;
             }
         }
 
-        GLfloat vVerts [256 * 256 * 3];
-        GLfloat vNorms [256 * 256 * 3];
+        computeNormals();
+        DL_ID = generateDL();
+    }
 
-        int x, z;
-        for(x = 0; x < 256; x ++){
-            for(z = 0; z < 256; z ++){
-                int ind = x*256 + z;
-                vVerts[ind + 0] = vertices[ind].x;
-                vVerts[ind + 1] = vertices[ind].y;
-                vVerts[ind + 2] = vertices[ind].z;
-                vNorms[ind + 0] = finalNormals[ind].x;
-                vNorms[ind + 1] = finalNormals[ind].y;
-                vNorms[ind + 2] = finalNormals[ind].z;
+    sf::Vector3f Ground::terrainCrossProduct(int x1,int z1,int x2,int z2,int x3,int z3) {
+        sf::Vector3f v1, v2;
+
+        float terrainStepWidth = 1.0, terrainStepLength = 1.0;
+
+    	v1 = sf::Vector3f((x2-x1) * terrainStepWidth,
+            -terrainHeights[z1 * 256 + x1] + terrainHeights[z2 * 256 + x2],
+            (z2-z1) * terrainStepLength);
+
+    	v2 = sf::Vector3f((x3-x1) * terrainStepWidth,
+            -terrainHeights[z1 * 256 + x1] + terrainHeights[z3 * 256 + x3],
+            (z3-z1) * terrainStepLength);
+
+    	return FPS_Math::crossVector(v1, v2);
+    }
+
+    void Ground::computeNormals(){
+        sf::Vector3f norm1, norm2;
+        int i, j, k;
+
+        for(i = 0; i < 256; i++){
+    		for(j = 0; j < 256; j++) {
+
+    			if (i == 0 && j == 0) {
+    				norm1 = terrainCrossProduct(0,0, 0,1, 1,0);
+    				norm1 = FPS_Math::normalizeVector(norm1);
+    			}
+    			else if (j == 256-1 && i == 256-1) {
+    				norm1 = terrainCrossProduct(j,i, j,i-1, j-1,i);
+    				norm1 = FPS_Math::normalizeVector(norm1);
+    			}
+    			else if (j == 0 && i == 256-1) {
+    				norm1 = terrainCrossProduct(j,i, j,i-1, j+1,i);
+    				norm1 = FPS_Math::normalizeVector(norm1);
+    			}
+    			else if (j == 256-1 && i == 0) {
+    				norm1 = terrainCrossProduct(j,i, j,i+1, j-1,i);
+    				norm1 = FPS_Math::normalizeVector(norm1);
+    			}
+
+    			/* normals for the borders */
+    			else if (i == 0) {
+    				norm1 = terrainCrossProduct(j,0, j-1,0, j,1);
+    				norm1 = FPS_Math::normalizeVector(norm1);
+    				norm2 = terrainCrossProduct(j,0,j,1,j+1,0);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    			}
+    			else if (j == 0) {
+    				norm1 = terrainCrossProduct(0,i, 1,i, 0,i-1);
+    				norm1 = FPS_Math::normalizeVector(norm1);
+    				norm2
+    					= terrainCrossProduct(0,i, 0,i+1, 1,i);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    			}
+    			else if (i == 256-1) {
+    				norm1 = terrainCrossProduct(j,i, j,i-1, j+1,i);
+    				norm1 = FPS_Math::normalizeVector(norm1);
+    				norm2 = terrainCrossProduct(j,i, j+1,i, j,i-1);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    			}
+    			else if (j == 256-1) {
+    				norm1 = terrainCrossProduct(j,i, j,i-1, j-1,i);
+    				norm1 = FPS_Math::normalizeVector(norm1);
+    				norm2 = terrainCrossProduct(j,i, j-1,i, j,i+1);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    			}
+
+    			/* normals for the inner vertices using 8 neighbours */
+    			else {
+    				norm1 = terrainCrossProduct(j,i, j-1,i, j-1,i+1);
+    				norm1 = FPS_Math::normalizeVector(norm1);
+    				norm2 = terrainCrossProduct(j,i, j-1,i+1, j,i+1);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    				norm2 = terrainCrossProduct(j,i, j,i+1, j+1,i+1);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    				norm2 = terrainCrossProduct(j,i, j+1,i+1, j+1,i);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    				norm2 = terrainCrossProduct(j,i, j+1,i, j+1,i-1);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    				norm2 = terrainCrossProduct(j,i, j+1,i-1, j,i-1);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    				norm2 = terrainCrossProduct(j,i, j,i-1, j-1,i-1);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    				norm2 = terrainCrossProduct(j,i, j-1,i-1, j-1,i);
+    				norm2 = FPS_Math::normalizeVector(norm2);
+    				norm1 += norm2;
+    			}
+
+    			norm1 = FPS_Math::normalizeVector(norm1);
+    			//norm1[2] = -norm1[2];
+                terrainNormals[3*(i*256 + j) + 0] = norm1.x;
+                terrainNormals[3*(i*256 + j) + 1] = norm1.y;
+                terrainNormals[3*(i*256 + j) + 2] = norm1.z;
             }
         }
-
-        glGenBuffers(1, &VBO_VEX_ID);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_VEX_ID);
-		glBufferData(GL_ARRAY_BUFFER, 256*256, vVerts, GL_STATIC_DRAW);
-        //glVertexAttribPointer()
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glGenBuffers(1, &VBO_NORM_ID);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_NORM_ID);
-		glBufferData(GL_ARRAY_BUFFER, 256*256, vNorms, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     }
 
     void Ground::render(){
-//        glPushMatrix();
-
-//        glEnable(GL_TEXTURE_2D);
-//		texture.bind();
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_VEX_ID);
-		glVertexPointer(3, GL_FLOAT, 0, 0L);
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_NORM_ID);
-		glNormalPointer(GL_FLOAT, 0, 0L);
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-//		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glEnableClientState(GL_NORMAL_ARRAY);
-
-        std::cout << "VEX_ID " << VBO_VEX_ID << ", NORM_ID " << VBO_NORM_ID << std::endl;
-
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 256*256);
-
-        glDisableClientState(GL_VERTEX_ARRAY);
-//		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDisable(GL_TEXTURE_2D);
-
-//        glPopMatrix();
+        glColor3f(1.f, 1.f, 1.f);
+        glCallList(DL_ID);
     }
 
     void Ground::update(){

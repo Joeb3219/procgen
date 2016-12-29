@@ -6,7 +6,6 @@
 #include "camera.h"
 #include "renderable.h"
 #include "fileIO.h"
-#include "noise.h"
 #include "mob.h"
 
 long int getCurrentTime(){
@@ -34,10 +33,10 @@ int main(){
     while (running){
         running = camera->handleEvents();
         camera->preRender();
-        camera->render(tile);
-        camera->render(person);
         camera->render(ground);
-        for(int i = 0; i < 2; i ++) camera->render(cubes[i]);
+//        camera->render(tile);
+//        camera->render(person);
+//        for(int i = 0; i < 2; i ++) camera->render(cubes[i]);
         camera->postRender();
         while((currentTime + msPerTick) < getCurrentTime()){
             camera->update();
