@@ -1,5 +1,12 @@
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <iostream>
+#include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
+#include <SFML/Graphics.hpp>
 #include "renderable.h"
+#include "math.h"
+#include "noise.h"
 
 namespace FPS_Graphics{
 
@@ -28,26 +35,98 @@ namespace FPS_Graphics{
 
     }
 
-    Ground_Layer::Ground_Layer(float width){
-        this->width = width;
+    Ground::Ground(){
+        sf::Vector3f normals [2][256][256];
+        sf::Vector3f finalNormals[256 * 256 + 3];
+        sf::Vector3f vertices[256 * 256 + 3];
+        FPS_Noise::PerlinOctave perlin(8, 12312312);
+        double a, b;
+        for(a = 0; a < 256; a ++){
+            for(b = 0; b < 256; b ++){
+                vertices[(int) (a*256 + b)] = sf::Vector3f(a, b, perlin.noise(a, b) * 12);
+            }
+        }
+        for(int x = 0; x < 256; x ++){
+            for(int z = 0; z < 256; z ++){
+                int ind = x*256 + z;
+                sf::Vector3f triangle0[] = {vertices[ind], vertices[ind + 256], vertices[ind + 256 + 1]};
+                sf::Vector3f triangle1[] = {vertices[ind + 256 + 1], vertices[ind + 1], vertices[ind]};
+                sf::Vector3f tNorm0 = FPS_Math::crossVector(triangle0[0]-triangle0[1], triangle0[1]-triangle0[2]);
+                sf::Vector3f tNorm1 = FPS_Math::crossVector(triangle1[0]-triangle1[1], triangle1[1]-triangle1[2]);
+                normals[0][x][z] = tNorm0;
+                normals[1][x][z] = tNorm1;
+            }
+        }
+        for(int x = 0; x < 256; x ++){
+            for(int z = 0; z < 256; z ++){
+                sf::Vector3f finalNorm(0, 0, 0);
+                if(x != 0 && z != 0) finalNorm += normals[0][x-1][z-1] + normals[1][x-1][z-1];
+                if(x != 0 && z != 255) finalNorm += normals[0][x - 1][z];
+                if(x != 255 && z != 255) finalNorm += normals[0][x][z] + normals[1][x][z];
+                if(x != 255 && z != 0) finalNorm += normals[1][x][z - 1];
+                finalNormals[x * 256 + z] = FPS_Math::normalizeVector(finalNorm);
+            }
+        }
+
+        GLfloat vVerts [256 * 256 * 3];
+        GLfloat vNorms [256 * 256 * 3];
+
+        int x, z;
+        for(x = 0; x < 256; x ++){
+            for(z = 0; z < 256; z ++){
+                int ind = x*256 + z;
+                vVerts[ind + 0] = vertices[ind].x;
+                vVerts[ind + 1] = vertices[ind].y;
+                vVerts[ind + 2] = vertices[ind].z;
+                vNorms[ind + 0] = finalNormals[ind].x;
+                vNorms[ind + 1] = finalNormals[ind].y;
+                vNorms[ind + 2] = finalNormals[ind].z;
+            }
+        }
+
+        glGenBuffers(1, &VBO_VEX_ID);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_VEX_ID);
+		glBufferData(GL_ARRAY_BUFFER, 256*256, vVerts, GL_STATIC_DRAW);
+        //glVertexAttribPointer()
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glGenBuffers(1, &VBO_NORM_ID);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_NORM_ID);
+		glBufferData(GL_ARRAY_BUFFER, 256*256, vNorms, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     }
 
-    void Ground_Layer::render(){
-        glPushMatrix();
-        glLoadIdentity();
-        glTranslatef(-width/2.0, 0, -width/2.0);
-        glRotatef(90, 1, 0, 0);
-        glColor3f(0xC2 / 255.0f, 0xB2 / 255.0f, 0x80 / 255.0f); // #c2b280
-        glBegin(GL_QUADS);
-            glVertex2f(0, 0);
-            glVertex2f(width / 2.0, 0);
-            glVertex2f(width / 2.0, width / 2.0);
-            glVertex2f(0, width / 2.0);
-        glEnd();
-        glPopMatrix();
+    void Ground::render(){
+//        glPushMatrix();
+
+//        glEnable(GL_TEXTURE_2D);
+//		texture.bind();
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_VEX_ID);
+		glVertexPointer(3, GL_FLOAT, 0, 0L);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_NORM_ID);
+		glNormalPointer(GL_FLOAT, 0, 0L);
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+//		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glEnableClientState(GL_NORMAL_ARRAY);
+
+        std::cout << "VEX_ID " << VBO_VEX_ID << ", NORM_ID " << VBO_NORM_ID << std::endl;
+
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 256*256);
+
+        glDisableClientState(GL_VERTEX_ARRAY);
+//		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_NORMAL_ARRAY);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDisable(GL_TEXTURE_2D);
+
+//        glPopMatrix();
     }
 
-    void Ground_Layer::update(){
+    void Ground::update(){
 
     }
 

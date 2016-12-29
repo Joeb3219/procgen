@@ -1,3 +1,5 @@
+#define GLEW_STATIC
+#include <GL/glew.h>
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
@@ -5,24 +7,11 @@
 #include "camera.h"
 #include "renderable.h"
 
+#define MOVE_SPEED 2
 #define PI 3.14159265
 #define NEARCLIP 0.001
 #define FARCLIP 200.0
 #define FOV 70
-
-
-sf::Vector3f normalizeVector(sf::Vector3f vector){
-    float length = sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
-    return sf::Vector3f(vector.x / length, vector.y / length, vector.z / length);
-}
-
-sf::Vector3f crossVector(sf::Vector3f v1, sf::Vector3f v2){
-    return sf::Vector3f(
-            v1.y*v2.z - v1.z*v2.y,
-            v1.z*v2.x - v1.x*v2.z,
-            v1.x*v2.y - v1.y*v2.x
-    );
-}
 
 Camera::Camera(int width, int height){
     x = y = z = rX = rY = rZ = 0.0f;
@@ -33,6 +22,7 @@ Camera::Camera(int width, int height){
     screen = window;
     mouseGrabbed = focused = true;
     sf::Mouse::setPosition(sf::Vector2i(width / 2, height / 2), *screen);
+    glewInit();
 }
 
 void Camera::update(){
@@ -49,25 +39,25 @@ void Camera::update(){
     float rXRadians = (PI / 180.0) * (rX + 90);
     float rXAdjustedRadians = (PI / 180.0) * (rX);
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-        x += (float) cos(rXAdjustedRadians) * 0.01;
-        z += (float) sin(rXAdjustedRadians) * 0.01;
+        x += (float) cos(rXAdjustedRadians) * MOVE_SPEED;
+        z += (float) sin(rXAdjustedRadians) * MOVE_SPEED;
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-        x -= (float) cos(rXAdjustedRadians) * 0.01;
-        z -= (float) sin(rXAdjustedRadians) * 0.01;
+        x -= (float) cos(rXAdjustedRadians) * MOVE_SPEED;
+        z -= (float) sin(rXAdjustedRadians) * MOVE_SPEED;
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-        x -= (float) cos(rXRadians) * 0.01 * fabs(cos(rYRadians));
-        y -= (float) sin(rYRadians) * 0.01;
-        z -= (float) sin(rXRadians) * 0.01 * fabs(cos(rYRadians));
+        x -= (float) cos(rXRadians) * MOVE_SPEED * fabs(cos(rYRadians));
+        y -= (float) sin(rYRadians) * MOVE_SPEED;
+        z -= (float) sin(rXRadians) * MOVE_SPEED * fabs(cos(rYRadians));
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
-        x += (float) cos(rXRadians) * 0.01 * fabs(cos(rYRadians));
-        y += (float) sin(rYRadians) * 0.01;
-        z += (float) sin(rXRadians) * 0.01 * fabs(cos(rYRadians));
+        x += (float) cos(rXRadians) * MOVE_SPEED * fabs(cos(rYRadians));
+        y += (float) sin(rYRadians) * MOVE_SPEED;
+        z += (float) sin(rXRadians) * MOVE_SPEED * fabs(cos(rYRadians));
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::U)) y+= 0.01;
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::J)) y-= 0.01;
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::U)) y+= MOVE_SPEED;
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::J)) y-= MOVE_SPEED;
     if(rX > 360) rX -= 360;
     if(rX < 0) rX += 360;
     if(rY > 90) rY = 90;

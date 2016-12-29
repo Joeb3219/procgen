@@ -1,7 +1,11 @@
 #ifndef RENDERABLE_H_
 #define RENDERABLE_H_
 
+#include <SFML/Window.hpp>
+#include <SFML/OpenGL.hpp>
+
 namespace FPS_Graphics{
+
     class Renderable{
     public:
         virtual void render() = 0;
@@ -33,13 +37,14 @@ namespace FPS_Graphics{
         float x, y, z;
     };
 
-    class Ground_Layer : public Renderable{
+    class Ground : public Renderable{
+    private:
+        GLuint VBO_VEX_ID, VBO_NORM_ID;
     public:
-        Ground_Layer(float width);
+        Ground();
         void render();
         void update();
-        float width;
-
+        float x, y;
     };
 }
 

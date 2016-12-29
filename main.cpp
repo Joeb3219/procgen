@@ -26,7 +26,7 @@ int main(){
     GLuint texture = FPS_FileIO::loadBitmapTexture("res/tiles/test.bmp");
     FPS_Graphics::Tile tile(200, 400, 32, 32, texture);
     FPS_Graphics::Cube cubes [2];
-    FPS_Graphics::Ground_Layer ground(10);
+    FPS_Graphics::Ground ground;
     for(int i = 0; i < 2; i ++){
         cubes[i] = FPS_Graphics::Cube(i, 0, 0);
     }
