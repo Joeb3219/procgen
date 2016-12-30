@@ -96,11 +96,25 @@ namespace FPS_Graphics{
                 }else{
                     color *= noise;
 
-                    if(noise <= 0.2) color = 0x40A4DF;
+                    if(noise <= 0.5){
+                        color = 0x40A4DF;
+                        r = ((color & 0xFF0000) >> 16) * 1.0 * (1 - FPS_Math::convertScale(noise, 0.f, 0.5f, 0.f, 0.5f));
+                        g = ((color & 0x00FF00) >> 8) * 1.0 * (1 - FPS_Math::convertScale(noise, 0.f, 0.5f, 0.f, 0.5f));
+                        b = ((color & 0x0000FF)) * 1.0 * (1 - FPS_Math::convertScale(noise, 0.f, 0.5f, 0.f, 0.5f));
+                        color = (((int)r) << 16) + (((int)g) << 8) + ((int)b);
+                    }else{
+                        color = 0xD3EF6F;
+                        r = ((color & 0xFF0000) >> 16) * 1.0 * (1 - FPS_Math::convertScale(noise, 0.5f, 1.f, 0.f, 1.f));
+                        g = ((color & 0x00FF00) >> 8) * 1.0 * (1 - FPS_Math::convertScale(noise, 0.5f, 1.f, 0.f, 1.f));
+                        b = ((color & 0x0000FF)) * 1.0 * (1 - FPS_Math::convertScale(noise, 0.5f, 1.f, 0.f, 1.f));
+                        color = (((int)r) << 16) + (((int)g) << 8) + ((int)b);
+                    }
+
+                /*    if(noise <= 0.2) color = 0x40A4DF;
                     else if(noise <= 0.4) color = 0x4065DF;
                     else if(noise <= 0.5) color = 0xD3EF6F;
                     else if(noise <= 0.7) color = 0xEFDA6F;
-                    else color = 0xEAC07B;
+                    else color = 0xEAC07B;*/
 
 
                     r = ((color & 0xFF0000) >> 16);
