@@ -7,7 +7,7 @@
 #include "camera.h"
 #include "renderable.h"
 
-#define MOVE_SPEED 2
+#define MOVE_SPEED 0.5
 #define PI 3.14159265
 #define NEARCLIP 0.001
 #define FARCLIP 400.0

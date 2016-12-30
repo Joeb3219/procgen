@@ -49,17 +49,17 @@ namespace FPS_Graphics{
 
     	glNewList(terrainDL,GL_COMPILE);
 
-    	for (i = 0 ; i < 256-1; i++) {
+    	for (i = 0 ; i < size-1; i++) {
     		glBegin(GL_TRIANGLE_STRIP);
-    		for (j = 0;j < 256; j++) {
-    			ind = 3*((i+1)*256 + j);
+    		for (j = 0;j < size; j++) {
+    			ind = 3*((i+1)*size + j);
     			glColor3f(terrainColors[ind], terrainColors[ind+1], terrainColors[ind+2]);
     			glNormal3f(terrainNormals[ind], terrainNormals[ind+1], terrainNormals[ind+2]);
-    			glVertex3f(startW + j + xOffset, terrainHeights[(i+1) * 256 + (j)] + yOffset, startL - (i+1) + zOffset);
-    			ind = 3*(i * 256 + j);
+    			glVertex3f(startW + j + xOffset, terrainHeights[(i+1) * size + (j)] + yOffset, startL - (i+1) + zOffset);
+    			ind = 3*(i * size + j);
     			glColor3f(terrainColors[ind], terrainColors[ind+1], terrainColors[ind+2]);
     			glNormal3f(terrainNormals[ind], terrainNormals[ind+1], terrainNormals[ind+2]);
-    			glVertex3f(startW + j + xOffset, terrainHeights[(i) * 256 + j] + yOffset, startL - i + zOffset);
+    			glVertex3f(startW + j + xOffset, terrainHeights[(i) * size + j] + yOffset, startL - i + zOffset);
     		}
     		glEnd();
     	}
@@ -68,7 +68,17 @@ namespace FPS_Graphics{
     	return terrainDL;
     }
 
-    Ground::Ground(){
+    Ground::~Ground(){
+        delete [] terrainHeights;
+        delete [] terrainColors;
+        delete [] terrainNormals;
+    }
+
+    Ground::Ground(int size){
+        this->size = size;
+        terrainHeights = new double [size * size];
+        terrainColors = new double [3 * size * size];
+        terrainNormals = new double [3 * size * size];
         int colorMode = 1; // 0 = B&W, 1 = beach.
         int smoothing = 1; // 1 = Smooth, 0 = no smoothing.
 
@@ -77,9 +87,9 @@ namespace FPS_Graphics{
         myNoise.SetFractalOctaves(2);
 
         double a, b;
-        for(a = 0; a < 256; a ++){
-            for(b = 0; b < 256; b ++){
-                int ind = (int) (a*256 + b), color = 0xFFFFFF;
+        for(a = 0; a < size; a ++){
+            for(b = 0; b < size; b ++){
+                int ind = (int) (a*size + b), color = 0xFFFFFF;
                 double noise = FPS_Math::convertScale(myNoise.GetNoise(a,b), -1.0f, 1.f, 0.0f, 1.f);   // Convert noise from b/w -1 -> 1 to 0 -> 1.
                 terrainHeights[ind] = noise * 40;
 
@@ -129,27 +139,27 @@ namespace FPS_Graphics{
         }
 
         if(smoothing){
-            for(int x = 1; x < 255; x ++){
-                for(int z = 1; z < 255; z ++ ){
-                    int ind = 3*(x * 256 + z);
+            for(int x = 1; x < size - 1; x ++){
+                for(int z = 1; z < size - 1; z ++ ){
+                    int ind = 3*(x * size + z);
                     float lWeight = 1.0, rWeight = 1.0, aWeight = 1.0, bWeight = 1.0, meWeight = 2.0;
                     float weightSums = lWeight + rWeight + aWeight + bWeight + meWeight;
                     float r, g, b;
                     r = terrainColors[ind + 0] *  meWeight +
-                        terrainColors[3*((x + 1)*256 + z) + 0] * bWeight +
-                        terrainColors[3*((x - 1)*256 + z) + 0] * aWeight +
-                        terrainColors[3*((x)*256 + z + 1) + 0] * rWeight +
-                        terrainColors[3*((x)*256 + z - 1) + 0] * lWeight;
+                        terrainColors[3*((x + 1)*size + z) + 0] * bWeight +
+                        terrainColors[3*((x - 1)*size + z) + 0] * aWeight +
+                        terrainColors[3*((x)*size + z + 1) + 0] * rWeight +
+                        terrainColors[3*((x)*size + z - 1) + 0] * lWeight;
                     g = terrainColors[ind + 1] *  meWeight +
-                        terrainColors[3*((x + 1)*256 + z) + 1] * bWeight +
-                        terrainColors[3*((x - 1)*256 + z) + 1] * aWeight +
-                        terrainColors[3*((x)*256 + z + 1) + 1] * rWeight +
-                        terrainColors[3*((x)*256 + z - 1) + 1] * lWeight;
+                        terrainColors[3*((x + 1)*size + z) + 1] * bWeight +
+                        terrainColors[3*((x - 1)*size + z) + 1] * aWeight +
+                        terrainColors[3*((x)*size + z + 1) + 1] * rWeight +
+                        terrainColors[3*((x)*size + z - 1) + 1] * lWeight;
                     b = terrainColors[ind + 2] *  meWeight +
-                        terrainColors[3*((x + 1)*256 + z) + 2] * bWeight +
-                        terrainColors[3*((x - 1)*256 + z) + 2] * aWeight +
-                        terrainColors[3*((x)*256 + z + 1) + 2] * rWeight +
-                        terrainColors[3*((x)*256 + z - 1) + 2] * lWeight;
+                        terrainColors[3*((x + 1)*size + z) + 2] * bWeight +
+                        terrainColors[3*((x - 1)*size + z) + 2] * aWeight +
+                        terrainColors[3*((x)*size + z + 1) + 2] * rWeight +
+                        terrainColors[3*((x)*size + z - 1) + 2] * lWeight;
                         terrainColors[ind + 0] = r / weightSums;
                         terrainColors[ind + 1] = g / weightSums;
                         terrainColors[ind + 2] = b / weightSums;
@@ -167,11 +177,11 @@ namespace FPS_Graphics{
         float terrainStepWidth = 1.0, terrainStepLength = 1.0;
 
     	v1 = sf::Vector3f((x2-x1) * terrainStepWidth,
-            -terrainHeights[z1 * 256 + x1] + terrainHeights[z2 * 256 + x2],
+            -terrainHeights[z1 * size + x1] + terrainHeights[z2 * size + x2],
             (z2-z1) * terrainStepLength);
 
     	v2 = sf::Vector3f((x3-x1) * terrainStepWidth,
-            -terrainHeights[z1 * 256 + x1] + terrainHeights[z3 * 256 + x3],
+            -terrainHeights[z1 * size + x1] + terrainHeights[z3 * size + x3],
             (z3-z1) * terrainStepLength);
 
     	return FPS_Math::crossVector(v1, v2);
@@ -181,22 +191,22 @@ namespace FPS_Graphics{
         sf::Vector3f norm1, norm2;
         int i, j, k;
 
-        for(i = 0; i < 256; i++){
-    		for(j = 0; j < 256; j++) {
+        for(i = 0; i < size; i++){
+    		for(j = 0; j < size; j++) {
 
     			if (i == 0 && j == 0) {
     				norm1 = terrainCrossProduct(0,0, 0,1, 1,0);
     				norm1 = FPS_Math::normalizeVector(norm1);
     			}
-    			else if (j == 256-1 && i == 256-1) {
+    			else if (j == size-1 && i == size-1) {
     				norm1 = terrainCrossProduct(j,i, j,i-1, j-1,i);
     				norm1 = FPS_Math::normalizeVector(norm1);
     			}
-    			else if (j == 0 && i == 256-1) {
+    			else if (j == 0 && i == size-1) {
     				norm1 = terrainCrossProduct(j,i, j,i-1, j+1,i);
     				norm1 = FPS_Math::normalizeVector(norm1);
     			}
-    			else if (j == 256-1 && i == 0) {
+    			else if (j == size-1 && i == 0) {
     				norm1 = terrainCrossProduct(j,i, j,i+1, j-1,i);
     				norm1 = FPS_Math::normalizeVector(norm1);
     			}
@@ -217,14 +227,14 @@ namespace FPS_Graphics{
     				norm2 = FPS_Math::normalizeVector(norm2);
     				norm1 += norm2;
     			}
-    			else if (i == 256-1) {
+    			else if (i == size-1) {
     				norm1 = terrainCrossProduct(j,i, j,i-1, j+1,i);
     				norm1 = FPS_Math::normalizeVector(norm1);
     				norm2 = terrainCrossProduct(j,i, j+1,i, j,i-1);
     				norm2 = FPS_Math::normalizeVector(norm2);
     				norm1 += norm2;
     			}
-    			else if (j == 256-1) {
+    			else if (j == size-1) {
     				norm1 = terrainCrossProduct(j,i, j,i-1, j-1,i);
     				norm1 = FPS_Math::normalizeVector(norm1);
     				norm2 = terrainCrossProduct(j,i, j-1,i, j,i+1);
@@ -261,9 +271,9 @@ namespace FPS_Graphics{
 
     			norm1 = FPS_Math::normalizeVector(norm1);
     			//norm1[2] = -norm1[2];
-                terrainNormals[3*(i*256 + j) + 0] = norm1.x;
-                terrainNormals[3*(i*256 + j) + 1] = norm1.y;
-                terrainNormals[3*(i*256 + j) + 2] = norm1.z;
+                terrainNormals[3*(i*size + j) + 0] = norm1.x;
+                terrainNormals[3*(i*size + j) + 1] = norm1.y;
+                terrainNormals[3*(i*size + j) + 2] = norm1.z;
             }
         }
     }
