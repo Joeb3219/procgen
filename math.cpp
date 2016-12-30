@@ -15,4 +15,8 @@ namespace FPS_Math{
         );
     }
 
+    float convertScale(float x, float oldMin, float oldMax, float newMin, float newMax){
+        return (( (x - oldMin) / (oldMax - oldMin)) * (newMax - newMin)) + newMin;
+    }
+
 }

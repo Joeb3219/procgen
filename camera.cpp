@@ -126,16 +126,6 @@ void Camera::preRender(){
 	glRotatef(rZ, 0, 0, 1);
 	glTranslatef(x, y, z);
     glMatrixMode(GL_MODELVIEW);
-
-    GLfloat mSpecular[] = {0.0,0.0,0.0,0.0};
-    GLfloat mShininess[] = {128.0};
-    GLfloat cBlack[] = {0.0,0.0,0.0,1.0};
-    GLfloat cOrange[] = {1.0,0.5,0.5,1.0};
-    GLfloat cWhite[] = {1.0,1.0,1.0,1.0};
-
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mSpecular);
-	glMaterialfv(GL_FRONT, GL_SHININESS,mShininess);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, cWhite);
 }
 
 void Camera::postRender(){
