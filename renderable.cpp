@@ -270,8 +270,10 @@ namespace FPS_Graphics{
 
     void Ground::render(){
         glPushMatrix();
+        glEnable(GL_DEPTH_TEST);
         glDisable(GL_TEXTURE_2D);
         glCallList(DL_ID);
+        glDisable(GL_DEPTH_TEST);
         glPopMatrix();
     }
 
@@ -289,9 +291,7 @@ namespace FPS_Graphics{
 
     void Cube::render(){
         float size = 0.5;
-        //glLoadIdentity();
         glPushMatrix();
-
         glEnable(GL_DEPTH_TEST);
         glMatrixMode(GL_MODELVIEW);
         glTranslatef(x, y, z);

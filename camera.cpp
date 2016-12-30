@@ -10,7 +10,7 @@
 #define MOVE_SPEED 2
 #define PI 3.14159265
 #define NEARCLIP 0.001
-#define FARCLIP 200.0
+#define FARCLIP 400.0
 #define FOV 70
 
 Camera::Camera(int width, int height){
@@ -62,6 +62,8 @@ void Camera::update(){
     if(rX < 0) rX += 360;
     if(rY > 90) rY = 90;
     if(rY < -90) rY = -90;
+
+    std::cout << "{x,y,z} " << x << ", " << y << ", " << z << std::endl;
 }
 
 sf::Vector2i Camera::getRelativeMousePosition(){
@@ -113,6 +115,13 @@ bool Camera::handleEvents(){
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) return false;
     return true;
+}
+
+void Camera::renderHUD(){
+    glPushMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glOrtho(0, 128, 0, 128, 0, 1);
+    glPopMatrix();
 }
 
 void Camera::preRender(){

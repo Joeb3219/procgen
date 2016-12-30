@@ -36,7 +36,7 @@ int main(){
         camera->render(ground);
 //        camera->render(tile);
 //        camera->render(person);
-//        for(int i = 0; i < 2; i ++) camera->render(cubes[i]);
+        for(int i = 0; i < 2; i ++) camera->render(cubes[i]);
         camera->postRender();
         while((currentTime + msPerTick) < getCurrentTime()){
             camera->update();

@@ -21,6 +21,7 @@ public:
     bool handleEvents();
     void preRender();
     void postRender();
+    void renderHUD();
     void windowResized(int width, int height);
     void update();
     sf::Vector2i getRelativeMousePosition();
