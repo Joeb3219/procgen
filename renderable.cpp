@@ -74,7 +74,7 @@ namespace FPS_Graphics{
         delete [] terrainNormals;
     }
 
-    Ground::Ground(int size){
+    Ground::Ground(int size, int seed){
         this->size = size;
         terrainHeights = new double [size * size];
         terrainColors = new double [3 * size * size];
@@ -84,6 +84,7 @@ namespace FPS_Graphics{
 
         FastNoise myNoise;
         myNoise.SetNoiseType(FastNoise::SimplexFractal);
+        myNoise.SetSeed(seed);
         myNoise.SetFractalOctaves(2);
 
         double a, b;
@@ -91,7 +92,7 @@ namespace FPS_Graphics{
             for(b = 0; b < size; b ++){
                 int ind = (int) (a*size + b), color = 0xFFFFFF;
                 double noise = FPS_Math::convertScale(myNoise.GetNoise(a,b), -1.0f, 1.f, 0.0f, 1.f);   // Convert noise from b/w -1 -> 1 to 0 -> 1.
-                terrainHeights[ind] = noise * 40;
+                terrainHeights[ind] = noise * 80;
 
                 double r, g, b;
                 if(colorMode == 0){

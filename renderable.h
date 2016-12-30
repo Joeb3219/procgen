@@ -48,7 +48,7 @@ namespace FPS_Graphics{
         void computeNormals();
         sf::Vector3f terrainCrossProduct(int x1,int z1,int x2,int z2,int x3,int z3);
     public:
-        Ground(int size);
+        Ground(int size, int seed);
         ~Ground();
         void render();
         void update();

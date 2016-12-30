@@ -7,6 +7,7 @@
 #include "renderable.h"
 #include "fileIO.h"
 #include "mob.h"
+#include "world.h"
 
 long int getCurrentTime(){
     struct timeval tp;
@@ -27,10 +28,9 @@ int main(){
     GLuint texture = FPS_FileIO::loadBitmapTexture("res/tiles/test.bmp");
     FPS_Graphics::Tile tile(200, 400, 32, 32, texture);
     FPS_Graphics::Cube cubes [2];
-    FPS_Graphics::Ground ground(512);
-    for(int i = 0; i < 2; i ++){
-        cubes[i] = FPS_Graphics::Cube(i, 0, 0);
-    }
+//    FPS_Graphics::Ground ground(512);
+    FPS_World::World world(512);
+    for(int i = 0; i < 2; i ++) cubes[i] = FPS_Graphics::Cube(i, 0, 0);
 
     while (running){
         running = camera->handleEvents();
@@ -39,7 +39,8 @@ int main(){
         camera->render(person);
         frames ++;
         for(int i = 0; i < 2; i ++) camera->render(cubes[i]);
-        camera->render(ground);
+        //camera->render(ground);
+        camera->render(world);
         camera->postRender();
         while((currentTime + msPerTick) < getCurrentTime()){
             camera->update();
