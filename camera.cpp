@@ -14,10 +14,7 @@
 #define FOV 70
 
 Camera::Camera(int width, int height){
-    x = -275;
-    y = -360;
-    z = 260;
-    rX = rY = rZ = 0.0f;
+    x = y = z = rX = rY = rZ = 0.0f;
     this->width = width;
     this->height = height;
     sf::Window *window = new sf::Window(sf::VideoMode(width, height), "Joeb3219 | FPS", sf::Style::Default, sf::ContextSettings(32));
@@ -42,22 +39,22 @@ void Camera::update(){
     float rXRadians = (PI / 180.0) * (rX + 90);
     float rXAdjustedRadians = (PI / 180.0) * (rX);
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-        x += (float) cos(rXAdjustedRadians) * MOVE_SPEED;
-        z += (float) sin(rXAdjustedRadians) * MOVE_SPEED;
-    }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
         x -= (float) cos(rXAdjustedRadians) * MOVE_SPEED;
         z -= (float) sin(rXAdjustedRadians) * MOVE_SPEED;
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-        x -= (float) cos(rXRadians) * MOVE_SPEED * fabs(cos(rYRadians));
-        y -= (float) sin(rYRadians) * MOVE_SPEED;
-        z -= (float) sin(rXRadians) * MOVE_SPEED * fabs(cos(rYRadians));
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+        x += (float) cos(rXAdjustedRadians) * MOVE_SPEED;
+        z += (float) sin(rXAdjustedRadians) * MOVE_SPEED;
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
         x += (float) cos(rXRadians) * MOVE_SPEED * fabs(cos(rYRadians));
         y += (float) sin(rYRadians) * MOVE_SPEED;
         z += (float) sin(rXRadians) * MOVE_SPEED * fabs(cos(rYRadians));
+    }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
+        x -= (float) cos(rXRadians) * MOVE_SPEED * fabs(cos(rYRadians));
+        y -= (float) sin(rYRadians) * MOVE_SPEED;
+        z -= (float) sin(rXRadians) * MOVE_SPEED * fabs(cos(rYRadians));
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::U)) y+= MOVE_SPEED;
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::J)) y-= MOVE_SPEED;
@@ -76,9 +73,9 @@ sf::Vector3f Camera::getCurrentPosition(){
 sf::Vector3f Camera::getLookingAt(){
     float rYRadians = (PI / 180.0) * rY;
     float rXRadians = (PI / 180.0) * (rX + 90);
-    float xPrime = x + ((float) cos(rXRadians) * 8.f * fabs(cos(rYRadians)));
-    float yPrime = y + ((float) sin(rYRadians) * 8.f);
-    float zPrime = z + ((float) sin(rXRadians) * 8.f * fabs(cos(rYRadians)));
+    float xPrime = x - ((float) cos(rXRadians) * 8.f * fabs(cos(rYRadians)));
+    float yPrime = y - ((float) sin(rYRadians) * 8.f);
+    float zPrime = z - ((float) sin(rXRadians) * 8.f * fabs(cos(rYRadians)));
     return sf::Vector3f(xPrime, yPrime, zPrime);
 }
 
@@ -149,7 +146,7 @@ void Camera::preRender(){
 	glRotatef(rY, 1, 0, 0);
 	glRotatef(rX, 0, 1, 0);
 	glRotatef(rZ, 0, 0, 1);
-	glTranslatef(x, y, z);
+	glTranslatef(-x, -y, -z);
     glMatrixMode(GL_MODELVIEW);
 }
 
