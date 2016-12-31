@@ -34,28 +34,25 @@ namespace FPS_Graphics{
 
     GLuint Ground::generateDL(){
         GLuint terrainDL;
-    	float startW,startL;
     	int i, j, ind;
-        double yOffset = 0, xOffset = 0, zOffset = 0;
-
-    	startW = 0;
-    	startL = 0;
+        float xOffset = 0, zOffset = 0;
 
     	terrainDL = glGenLists(1);
 
     	glNewList(terrainDL,GL_COMPILE);
 
-    	for (i = 0 ; i < size-1; i++) {
+        for (j = 0; j < size; j++) {
+
     		glBegin(GL_TRIANGLE_STRIP);
-    		for (j = 0;j < size; j++) {
-    			ind = 3*((i+1)*size + j);
+            for (i = 0 ; i < size-1; i++) {
+    			ind = 3*((i)*size + j + 1);
     			glColor3f(terrainColors[ind], terrainColors[ind+1], terrainColors[ind+2]);
     			glNormal3f(terrainNormals[ind], terrainNormals[ind+1], terrainNormals[ind+2]);
-    			glVertex3f(startW + j + xOffset, terrainHeights[(i+1) * size + (j)] + yOffset, startL - (i+1) + zOffset);
+    			glVertex3f(i + xOffset, terrainHeights[(i) * size + (j + 1)], (j+1) + zOffset);
     			ind = 3*(i * size + j);
     			glColor3f(terrainColors[ind], terrainColors[ind+1], terrainColors[ind+2]);
     			glNormal3f(terrainNormals[ind], terrainNormals[ind+1], terrainNormals[ind+2]);
-    			glVertex3f(startW + j + xOffset, terrainHeights[(i) * size + j] + yOffset, startL - i + zOffset);
+    			glVertex3f(i + xOffset, terrainHeights[(i) * size + j], j + zOffset);
     		}
     		glEnd();
     	}
