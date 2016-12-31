@@ -32,10 +32,6 @@ namespace FPS_Graphics{
         glDisable(GL_TEXTURE_2D);
     }
 
-    void Tile::update(){
-
-    }
-
     GLuint Ground::generateDL(){
         GLuint terrainDL;
     	float startW,startL;
@@ -79,8 +75,6 @@ namespace FPS_Graphics{
         terrainHeights = new double [size * size];
         terrainColors = new double [3 * size * size];
         terrainNormals = new double [3 * size * size];
-        int colorMode = 1; // 0 = B&W, 1 = beach.
-        int smoothing = 1; // 1 = Smooth, 0 = no smoothing.
 
         FastNoise myNoise;
         myNoise.SetNoiseType(FastNoise::SimplexFractal);
@@ -90,11 +84,25 @@ namespace FPS_Graphics{
         double a, b;
         for(a = 0; a < size; a ++){
             for(b = 0; b < size; b ++){
-                int ind = (int) (a*size + b), color = 0xFFFFFF;
+                int ind = (int) (a*size + b);
                 double noise = FPS_Math::convertScale(myNoise.GetNoise(a,b), -1.0f, 1.f, 0.0f, 1.f);   // Convert noise from b/w -1 -> 1 to 0 -> 1.
-                terrainHeights[ind] = noise * 80;
+                terrainHeights[ind] = noise * 80.0;
+            }
+        }
+        generateColorsAndDisplay();
+    }
 
+    void Ground::generateColorsAndDisplay(){
+        std::cout << "Regenerating colors and display code" << std::endl;
+        int colorMode = 1; // 0 = B&W, 1 = beach.
+        int smoothing = 1; // 1 = Smooth, 0 = no smoothing.
+        int color = 0xFFFFFF;
+        for(int x = 0; x < size; x ++){
+            for(int y = 0; y < size; y ++){
+                int ind = x * size + y;
+                double noise = terrainHeights[ind] / 80.0;
                 double r, g, b;
+                color = 0xFFFFFF;
                 if(colorMode == 0){
                     color *= noise;
                     r = ((color & 0xFF0000) >> 16);// * 0.30;
@@ -120,13 +128,6 @@ namespace FPS_Graphics{
                         b = ((color & 0x0000FF)) * 1.0 * (1 - FPS_Math::convertScale(noise, 0.5f, 1.f, 0.f, 1.f));
                         color = (((int)r) << 16) + (((int)g) << 8) + ((int)b);
                     }
-
-                /*    if(noise <= 0.2) color = 0x40A4DF;
-                    else if(noise <= 0.4) color = 0x4065DF;
-                    else if(noise <= 0.5) color = 0xD3EF6F;
-                    else if(noise <= 0.7) color = 0xEFDA6F;
-                    else color = 0xEAC07B;*/
-
 
                     r = ((color & 0xFF0000) >> 16);
                     g = ((color & 0x00FF00) >> 8);
@@ -172,6 +173,19 @@ namespace FPS_Graphics{
         DL_ID = generateDL();
     }
 
+    double Ground::getHeight(float x, float z){
+        int xPrime = (int) x;
+        int zPrime = (int) z;
+        return terrainHeights[xPrime * size + zPrime];
+    }
+
+    void Ground::modifyHeight(float x, float z, float val){
+        int xPrime = (int) x;
+        int zPrime = (int) z;
+        terrainHeights[xPrime * size + zPrime] += val;
+        std::cout << "Set height of " << xPrime << ", " << zPrime << " to " << terrainHeights[xPrime * size + zPrime] << std::endl;
+    }
+
     sf::Vector3f Ground::terrainCrossProduct(int x1,int z1,int x2,int z2,int x3,int z3) {
         sf::Vector3f v1, v2;
 
@@ -190,7 +204,7 @@ namespace FPS_Graphics{
 
     void Ground::computeNormals(){
         sf::Vector3f norm1, norm2;
-        int i, j, k;
+        int i, j;
 
         for(i = 0; i < size; i++){
     		for(j = 0; j < size; j++) {
@@ -288,10 +302,6 @@ namespace FPS_Graphics{
         glPopMatrix();
     }
 
-    void Ground::update(){
-
-    }
-
     Cube::Cube(float x, float y, float z){
         this->x = x;
         this->y = y;
@@ -342,7 +352,4 @@ namespace FPS_Graphics{
         glPopMatrix();
     }
 
-    void Cube::update(){
-
-    }
 }

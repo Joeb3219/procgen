@@ -1,6 +1,8 @@
 #ifndef FPS_MATH_H
 #define FPS_MATH_H
 
+#include <SFML/Window.hpp>
+
 namespace FPS_Math{
 
     sf::Vector3f normalizeVector(sf::Vector3f vector);

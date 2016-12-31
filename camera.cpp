@@ -69,6 +69,19 @@ void Camera::update(){
     std::cout << "{x,y,z} " << x << ", " << y << ", " << z << std::endl;
 }
 
+sf::Vector3f Camera::getCurrentPosition(){
+    return sf::Vector3f(x, y, z);
+}
+
+sf::Vector3f Camera::getLookingAt(){
+    float rYRadians = (PI / 180.0) * rY;
+    float rXRadians = (PI / 180.0) * (rX + 90);
+    float xPrime = x + ((float) cos(rXRadians) * 8.f * fabs(cos(rYRadians)));
+    float yPrime = y + ((float) sin(rYRadians) * 8.f);
+    float zPrime = z + ((float) sin(rXRadians) * 8.f * fabs(cos(rYRadians)));
+    return sf::Vector3f(xPrime, yPrime, zPrime);
+}
+
 sf::Vector2i Camera::getRelativeMousePosition(){
     sf::Vector2i vec = sf::Mouse::getPosition(*screen);
     vec.y = (height / 2) - vec.y;

@@ -15,7 +15,6 @@ private:
 
 public:
     int width, height;
-
     Camera(int width, int height);
     void render(FPS_Graphics::Renderable& r);
     bool handleEvents();
@@ -26,7 +25,8 @@ public:
     void update();
     sf::Vector2i getRelativeMousePosition();
     ~Camera();
-
+    sf::Vector3f getCurrentPosition();
+    sf::Vector3f getLookingAt();
 };
 
 #endif

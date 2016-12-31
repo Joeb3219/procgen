@@ -13,6 +13,7 @@ long int getCurrentTime(){
     struct timeval tp;
     gettimeofday(&tp, NULL);
     long int currentTime = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+    return currentTime;
 }
 
 int main(){
@@ -30,7 +31,7 @@ int main(){
     FPS_Graphics::Cube cubes [2];
 //    FPS_Graphics::Ground ground(512);
     FPS_World::World world(512);
-    for(int i = 0; i < 2; i ++) cubes[i] = FPS_Graphics::Cube(i, 0, 0);
+    for(int i = 0; i < 2; i ++) cubes[i] = FPS_Graphics::Cube(i, 5, 5);
 
     while (running){
         running = camera->handleEvents();
@@ -45,6 +46,7 @@ int main(){
         while((currentTime + msPerTick) < getCurrentTime()){
             camera->update();
             person.update();
+            world.update(camera);
             currentTime += msPerTick;
             std::cout << "FPS: " << fps << std::endl;
         }
@@ -54,6 +56,8 @@ int main(){
             frames = 0;
         }
     }
+
+    delete camera;
 
     return 0;
 }

@@ -9,7 +9,6 @@ namespace FPS_Graphics{
     class Renderable{
     public:
         virtual void render() = 0;
-        virtual void update() = 0;
         float x, y;
     };
 
@@ -25,7 +24,6 @@ namespace FPS_Graphics{
         float x, y;
         Tile(float x, float y, float width, float height, GLuint texture);
         void render();
-        void update();
     };
 
     class Cube : public Renderable{
@@ -33,7 +31,6 @@ namespace FPS_Graphics{
         Cube();
         Cube(float x, float y, float z);
         void render();
-        void update();
         float x, y, z;
     };
 
@@ -49,9 +46,11 @@ namespace FPS_Graphics{
         sf::Vector3f terrainCrossProduct(int x1,int z1,int x2,int z2,int x3,int z3);
     public:
         Ground(int size, int seed);
+        double getHeight(float x, float z);
+        void modifyHeight(float x, float z, float val);
+        void generateColorsAndDisplay();
         ~Ground();
         void render();
-        void update();
         float x, y;
     };
 }
