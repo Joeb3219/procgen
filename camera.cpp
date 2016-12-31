@@ -1,5 +1,3 @@
-#define GLEW_STATIC
-#include <GL/glew.h>
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
@@ -25,7 +23,6 @@ Camera::Camera(int width, int height){
     screen = window;
     mouseGrabbed = focused = true;
     sf::Mouse::setPosition(sf::Vector2i(width / 2, height / 2), *screen);
-    glewInit();
 }
 
 void Camera::update(){

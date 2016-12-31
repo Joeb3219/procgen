@@ -1,5 +1,3 @@
-#define GLEW_STATIC
-#include <GL/glew.h>
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>

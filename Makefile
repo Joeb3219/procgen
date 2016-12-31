@@ -1,5 +1,5 @@
 CC := g++ -std=c++11
-LIBS := -lsfml-graphics -lsfml-window -lsfml-system -lGL -lm -lGLEW
+LIBS := -lsfml-graphics -lsfml-window -lsfml-system -lGL -lm
 LIB_FATNOISE := lib/fastNoise/FastNoise.cpp
 LIB_ALL := $(LIB_FATNOISE)
 
