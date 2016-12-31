@@ -11,27 +11,6 @@
 
 namespace FPS_Graphics{
 
-    Tile::Tile(float x, float y, float width, float height, GLuint texture){
-        this->x = x;
-        this->y = y;
-        this->width = width;
-        this->height = height;
-        this->texture = texture;
-    }
-
-    void Tile::render(){
-        glEnable(GL_TEXTURE_2D);
-        glColor3f( 1.0f, 1.0f, 1.0f);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glBegin(GL_QUADS);
-            glTexCoord2f(0, 0); glVertex2f(x, y);
-            glTexCoord2f(1, 0); glVertex2f(x + width, y);
-            glTexCoord2f(1, 1); glVertex2f(x + width, y + height);
-            glTexCoord2f(0, 1); glVertex2f(x, y + height);
-        glEnd();
-        glDisable(GL_TEXTURE_2D);
-    }
-
     GLuint Ground::generateDL(){
         GLuint terrainDL;
     	int i, j, ind;
@@ -166,13 +145,13 @@ namespace FPS_Graphics{
             }
         }
 
-        computeNormals();
         DL_ID = generateDL();
     }
 
     double Ground::getHeight(float x, float z){
         int xPrime = (int) x;
         int zPrime = (int) z;
+        if(xPrime < 0 || xPrime > size || zPrime < 0 || zPrime > size) return -1;
         return terrainHeights[xPrime * size + zPrime];
     }
 
@@ -183,168 +162,11 @@ namespace FPS_Graphics{
         std::cout << "Set height of " << xPrime << ", " << zPrime << " to " << terrainHeights[xPrime * size + zPrime] << std::endl;
     }
 
-    sf::Vector3f Ground::terrainCrossProduct(int x1,int z1,int x2,int z2,int x3,int z3) {
-        sf::Vector3f v1, v2;
-
-        float terrainStepWidth = 1.0, terrainStepLength = 1.0;
-
-    	v1 = sf::Vector3f((x2-x1) * terrainStepWidth,
-            -terrainHeights[z1 * size + x1] + terrainHeights[z2 * size + x2],
-            (z2-z1) * terrainStepLength);
-
-    	v2 = sf::Vector3f((x3-x1) * terrainStepWidth,
-            -terrainHeights[z1 * size + x1] + terrainHeights[z3 * size + x3],
-            (z3-z1) * terrainStepLength);
-
-    	return FPS_Math::crossVector(v1, v2);
-    }
-
-    void Ground::computeNormals(){
-        sf::Vector3f norm1, norm2;
-        int i, j;
-
-        for(i = 0; i < size; i++){
-    		for(j = 0; j < size; j++) {
-
-    			if (i == 0 && j == 0) {
-    				norm1 = terrainCrossProduct(0,0, 0,1, 1,0);
-    				norm1 = FPS_Math::normalizeVector(norm1);
-    			}
-    			else if (j == size-1 && i == size-1) {
-    				norm1 = terrainCrossProduct(j,i, j,i-1, j-1,i);
-    				norm1 = FPS_Math::normalizeVector(norm1);
-    			}
-    			else if (j == 0 && i == size-1) {
-    				norm1 = terrainCrossProduct(j,i, j,i-1, j+1,i);
-    				norm1 = FPS_Math::normalizeVector(norm1);
-    			}
-    			else if (j == size-1 && i == 0) {
-    				norm1 = terrainCrossProduct(j,i, j,i+1, j-1,i);
-    				norm1 = FPS_Math::normalizeVector(norm1);
-    			}
-
-    			/* normals for the borders */
-    			else if (i == 0) {
-    				norm1 = terrainCrossProduct(j,0, j-1,0, j,1);
-    				norm1 = FPS_Math::normalizeVector(norm1);
-    				norm2 = terrainCrossProduct(j,0,j,1,j+1,0);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    			}
-    			else if (j == 0) {
-    				norm1 = terrainCrossProduct(0,i, 1,i, 0,i-1);
-    				norm1 = FPS_Math::normalizeVector(norm1);
-    				norm2
-    					= terrainCrossProduct(0,i, 0,i+1, 1,i);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    			}
-    			else if (i == size-1) {
-    				norm1 = terrainCrossProduct(j,i, j,i-1, j+1,i);
-    				norm1 = FPS_Math::normalizeVector(norm1);
-    				norm2 = terrainCrossProduct(j,i, j+1,i, j,i-1);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    			}
-    			else if (j == size-1) {
-    				norm1 = terrainCrossProduct(j,i, j,i-1, j-1,i);
-    				norm1 = FPS_Math::normalizeVector(norm1);
-    				norm2 = terrainCrossProduct(j,i, j-1,i, j,i+1);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    			}
-
-    			/* normals for the inner vertices using 8 neighbours */
-    			else {
-    				norm1 = terrainCrossProduct(j,i, j-1,i, j-1,i+1);
-    				norm1 = FPS_Math::normalizeVector(norm1);
-    				norm2 = terrainCrossProduct(j,i, j-1,i+1, j,i+1);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    				norm2 = terrainCrossProduct(j,i, j,i+1, j+1,i+1);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    				norm2 = terrainCrossProduct(j,i, j+1,i+1, j+1,i);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    				norm2 = terrainCrossProduct(j,i, j+1,i, j+1,i-1);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    				norm2 = terrainCrossProduct(j,i, j+1,i-1, j,i-1);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    				norm2 = terrainCrossProduct(j,i, j,i-1, j-1,i-1);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    				norm2 = terrainCrossProduct(j,i, j-1,i-1, j-1,i);
-    				norm2 = FPS_Math::normalizeVector(norm2);
-    				norm1 += norm2;
-    			}
-
-    			norm1 = FPS_Math::normalizeVector(norm1);
-    			//norm1[2] = -norm1[2];
-                terrainNormals[3*(i*size + j) + 0] = norm1.x;
-                terrainNormals[3*(i*size + j) + 1] = norm1.y;
-                terrainNormals[3*(i*size + j) + 2] = norm1.z;
-            }
-        }
-    }
-
     void Ground::render(){
         glPushMatrix();
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_TEXTURE_2D);
         glCallList(DL_ID);
-        glDisable(GL_DEPTH_TEST);
-        glPopMatrix();
-    }
-
-    Cube::Cube(float x, float y, float z){
-        this->x = x;
-        this->y = y;
-        this->z = z;
-    }
-
-    Cube::Cube(){}
-
-    void Cube::render(){
-        float size = 0.5;
-        glPushMatrix();
-        glEnable(GL_DEPTH_TEST);
-        glMatrixMode(GL_MODELVIEW);
-        glTranslatef(x, y, z);
-        glBegin(GL_QUADS);        // Draw The Cube Using quads
-            glColor3f(0.0f,1.0f,0.0f);    // Color Blue
-            glVertex3f( size, size,-size);    // Top Right Of The Quad (Top)
-            glVertex3f(-size, size,-size);    // Top Left Of The Quad (Top)
-            glVertex3f(-size, size, size);    // Bottom Left Of The Quad (Top)
-            glVertex3f( size, size, size);    // Bottom Right Of The Quad (Top)
-            glColor3f(1.0f,0.5f,0.0f);    // Color Orange
-            glVertex3f( size,-size, size);    // Top Right Of The Quad (Bottom)
-            glVertex3f(-size,-size, size);    // Top Left Of The Quad (Bottom)
-            glVertex3f(-size,-size,-size);    // Bottom Left Of The Quad (Bottom)
-            glVertex3f( size,-size,-size);    // Bottom Right Of The Quad (Bottom)
-            glColor3f(1.0f,0.0f,0.0f);    // Color Red
-            glVertex3f( size, size, size);    // Top Right Of The Quad (Front)
-            glVertex3f(-size, size, size);    // Top Left Of The Quad (Front)
-            glVertex3f(-size,-size, size);    // Bottom Left Of The Quad (Front)
-            glVertex3f( size,-size, size);    // Bottom Right Of The Quad (Front)
-            glColor3f(1.0f,1.0f,0.0f);    // Color Yellow
-            glVertex3f( size,-size,-size);    // Top Right Of The Quad (Back)
-            glVertex3f(-size,-size,-size);    // Top Left Of The Quad (Back)
-            glVertex3f(-size, size,-size);    // Bottom Left Of The Quad (Back)
-            glVertex3f( size, size,-size);    // Bottom Right Of The Quad (Back)
-            glColor3f(0.0f,0.0f,1.0f);    // Color Blue
-            glVertex3f(-size, size, size);    // Top Right Of The Quad (Left)
-            glVertex3f(-size, size,-size);    // Top Left Of The Quad (Left)
-            glVertex3f(-size,-size,-size);    // Bottom Left Of The Quad (Left)
-            glVertex3f(-size,-size, size);    // Bottom Right Of The Quad (Left)
-            glColor3f(1.0f,0.0f,1.0f);    // Color Violet
-            glVertex3f( size, size,-size);    // Top Right Of The Quad (Right)
-            glVertex3f( size, size, size);    // Top Left Of The Quad (Right)
-            glVertex3f( size,-size, size);    // Bottom Left Of The Quad (Right)
-            glVertex3f( size,-size,-size);    // Bottom Right Of The Quad (Right)
-        glEnd();            // End Drawing The Cube
         glDisable(GL_DEPTH_TEST);
         glPopMatrix();
     }

@@ -14,7 +14,10 @@
 #define FOV 70
 
 Camera::Camera(int width, int height){
-    x = y = z = rX = rY = rZ = 0.0f;
+    x = 213;
+    y = 134;
+    z = 256;
+    rX = rY = rZ = 0.0f;
     this->width = width;
     this->height = height;
     sf::Window *window = new sf::Window(sf::VideoMode(width, height), "Joeb3219 | FPS", sf::Style::Default, sf::ContextSettings(32));
@@ -31,7 +34,6 @@ void Camera::update(){
     if(mouseGrabbed){
         rX += (mouseChange.x * 0.08);
         rY -= (mouseChange.y * 0.08);
-        if(DEBUG == 1) std::cout << "CAMERA: (x, y, z, rX, rY): (" << x << ", " << y << ", " << z << ", " << rX << ", " << rY << std::endl;
         sf::Mouse::setPosition(sf::Vector2i(width / 2, height / 2), *screen);
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::P)) mouseGrabbed = !mouseGrabbed;
@@ -100,9 +102,7 @@ void Camera::windowResized(int width, int height){
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
-		//glEnable(GL_CULL_FACE);
 	glEnable(GL_NORMALIZE);
-		//glCullFace(GL_FRONT_AND_BACK);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 

@@ -27,5 +27,5 @@ void Person::render(){
 }
 
 void Person::update(){
-    
+
 }

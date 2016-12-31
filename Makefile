@@ -6,7 +6,7 @@ LIB_ALL := $(LIB_FATNOISE)
 all: clean fps
 
 fps: main.cpp
-	$(CC) -g -o fps $(LIB_ALL) world.cpp math.cpp fileIO.cpp camera.cpp mob.cpp renderable.cpp main.cpp $(LIBS)
+	$(CC) -g -o fps $(LIB_ALL) world.cpp math.cpp camera.cpp renderable.cpp main.cpp $(LIBS)
 
 clean:
 	rm -rf *.o fps
